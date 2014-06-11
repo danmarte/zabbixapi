@@ -5,3 +5,4 @@
 .gemtags
 pkg
 test
+spec/spec_helper.rb
