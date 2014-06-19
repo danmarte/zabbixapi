@@ -47,7 +47,7 @@ describe 'hostgroup' do
     end
 
     describe "delete" do
-      it "shold return id" do
+      it "should return id" do
         zbx.hostgroups.delete(@hostgroupid).should eq @hostgroupid
       end
     end
