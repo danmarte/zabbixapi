@@ -44,5 +44,22 @@ class ZabbixApi
     def delete(hostid)
       super(:hostid => hostid)
     end
+
+    def get_items(data)
+      log "[DEBUG] Call get_items with parameters: #{data.inspect}"
+
+      result = @client.api_request(
+        :method => "host.get",
+        :params => {
+          :filter => {
+            :host => data[:host]
+          },
+          :selectItems => 'extend'
+        }
+      )
+
+      result[0]['items'].empty? ? nil : result[0]['items']
+    end
+
   end
 end
