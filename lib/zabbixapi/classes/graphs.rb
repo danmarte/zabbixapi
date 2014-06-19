@@ -27,7 +27,21 @@ class ZabbixApi
       )
     end
 
+    def get_by_host(data)
+      log "[DEBUG] Call get_graphs_by_host with parametrs: #{data.inspect}"
+
+      @client.api_request(
+        :method => "graph.get",
+        :params => {
+          :hostids => data[:hostids],
+          :output => [:name]
+        }
+      )
+    end
+
     def get_ids_by_host(data)
+      log "[DEBUG] Call get_ids_by_host with parametrs: #{data.inspect}"
+
       ids = []
       graphs = Hash.new
       result = @client.api_request(:method => "graph.get", :params => {:filter => {:host => data[:host]}, :output => "extend"})
