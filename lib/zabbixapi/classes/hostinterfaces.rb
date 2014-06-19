@@ -10,7 +10,7 @@ class ZabbixApi
     end
 
     def indentify
-      "hostinterface"
+      "hostids"
     end
 
     def default_options
@@ -23,6 +23,19 @@ class ZabbixApi
         :type => 1,
         :useip => 1
       }
+    end
+
+    def parse_keys(data)
+      case data
+        when Hash
+          data.empty? ? nil : data['interfaceids'][0].to_i
+        when TrueClass
+          true
+        when FalseClass
+          false
+        else
+          nil
+      end
     end
 
     #def unlink_templates(data)
@@ -45,5 +58,69 @@ class ZabbixApi
     #  result = @client.api_request(:method => "hostinterface.delete", :params => [data])
     #  result.empty? ? nil : result['interfaceids'][0].to_i
     #end
+
+    def get_full_data(data)
+      log "[DEBUG] Call get_full_data with parameters: #{data.inspect}"
+
+      @client.api_request(
+        :method => "#{method_name}.get",
+        :params => {
+           indentify.to_sym => data[indentify.to_sym],
+          :output => "extend"
+        }
+      )
+    end
+
+    def exists(data)
+      log "[DEBUG] Call exits with parameters: #{data.inspect}"
+
+      @client.api_request(
+        :method => "#{method_name}.exists",
+        :params => {
+           indentify.to_sym => data[indentify.to_sym]
+        }
+      )
+    end
+
+    def get_on_port(data)
+      log "[DEBUG] Call get_on_port with parameters: #{data.inspect}"
+
+      port = data[:port]
+      tmp = Array.new
+      
+      result = get_full_data(data)
+      result.each { |interface|
+        if(interface['port'] == port)
+          tmp.push(interface)        
+        end
+      }
+
+      (tmp.count == 0) ? nil : tmp
+    end
+
+    def massadd(hosts,data)
+      log "[DEBUG] Call massadd with parameters: #{hosts} --- #{data.inspect}"
+
+      @client.api_request(
+        :method => "#{method_name}.massadd",
+        :params => {
+          :hosts      => hosts,
+          :interfaces => data
+        }
+      )
+    end
+
+    def massremove(hosts,data)
+      log "[DEBUG] Call massremove with parameters: #{hosts} --- #{data.inspect}"
+
+      @client.api_request(
+        :method => "#{method_name}.massremove",
+        :params => {
+          :hostids    => hosts,
+          :interfaces => data
+        }
+      )
+   end
+
   end
 end
