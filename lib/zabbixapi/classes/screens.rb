@@ -34,24 +34,25 @@ class ZabbixApi
     end
 
     def get_or_create_for_host(data)
-      screen_name = data[:screen_name]
-      graphids = data[:graphids]
       screenitems = []
-      hsize = data[:hsize] || 3
-      valign = data[:valign] || 2
-      halign = data[:halign] || 2
-      rowspan = data[:rowspan] || 0
-      colspan = data[:colspan] || 0
-      height = data[:height] || 320 # default 320
-      width = data[:width] || 200 # default 200
-      vsize = data[:vsize] || (graphids.size/hsize).to_i
-      screenid = get_id(:name => screen_name)
+      screen_name = data[:screen_name]
+      graphids    = data[:graphids]
+      valign      = data[:valign]  || 0
+      halign      = data[:halign]  || 0
+      rowspan     = data[:rowspan] || 0
+      colspan     = data[:colspan] || 0
+      hsize       = data[:hsize]   || (graphids.size.to_i < 3) ? graphids.size.to_i : 3
+      vsize       = data[:vsize]   || (graphids.size/hsize).to_i == 0 ? 1 : (graphids.size/hsize).to_i
+      height      = data[:height]  || 100 # default 100
+      width       = data[:width]   || (hsize.to_i < 3) ? 500 : 400  # default 500
 
-      if ((graphids.size/hsize) / 2) == 0
-        vsize = data[:vsize] || (graphids.size/hsize).to_i
-      else
-        vsize = data[:vsize] || ((graphids.size/hsize)+1).to_i
-      end
+      screenid    = get_id(:name => screen_name)
+
+      #if ((graphids.size/hsize) / 2) == 0
+      #  vsize = data[:vsize] || (graphids.size/hsize).to_i
+      #else
+      #  vsize = data[:vsize] || ((graphids.size/hsize)+1).to_i
+      #end
 
       unless screenid
         # Create screen
