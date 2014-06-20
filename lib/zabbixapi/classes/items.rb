@@ -58,5 +58,27 @@ class ZabbixApi
       result['itemids'].keys[0].to_i
     end
 
+    def get_full_data(data)
+      log "[DEBUG] Call get_full_data with parametrs: #{data.inspect}"
+
+      if(defined? data['templateids'])
+        params = {
+          :filter => { indentify.to_sym => data[indentify.to_sym] },
+          :templateids => data['templateids'.to_sym],
+          :output => "extend"
+        }
+      else
+        params = {
+          :filter => { indentify.to_sym => data[indentify.to_sym] },
+          :output => "extend"
+        }
+      end
+
+      @client.api_request(
+        :method => "#{method_name}.get",
+        :params => params
+      )
+    end
+
   end
 end
