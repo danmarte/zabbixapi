@@ -16,14 +16,23 @@ class ZabbixApi
     def get_full_data(data)
       log "[DEBUG] Call get_full_data with parametrs: #{data.inspect}"
 
+      params = nil
+      if(defined? data['templateids'])
+       params = {
+         :search => { indentify.to_sym => data[indentify.to_sym] },
+         :templateids => data['templateids'.to_sym],
+         :output => "extend"
+       }
+      else
+       params = {
+         :search => { indentify.to_sym => data[indentify.to_sym] },
+         :output => "extend"
+       }
+      end
+
       @client.api_request(
         :method => "#{method_name}.get",
-        :params => {
-          :search => {
-            indentify.to_sym => data[indentify.to_sym]
-          },
-          :output => "extend"
-        }
+        :params => params
       )
     end
 
