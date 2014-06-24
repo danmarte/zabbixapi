@@ -100,8 +100,11 @@ describe 'hostinterface' do
   context 'when interface exists' do
 
     describe 'exists' do
-      it "should return true" do
-        zbx.hostinterfaces.exists( :ip => "10.20.48.88" ).should eq true
+      it "should return true if interface exist with provided IP and Port" do
+        zbx.hostinterfaces.exists(:hostids => @hostid, :ip => "127.0.0.1", :port => 9998).should eq true
+      end 
+      it "should return false if provided IP doesn't match the interface Port" do
+        zbx.hostinterfaces.exists(:hostids => @hostid, :ip => "10.20.48.94", :port => 9998).should eq false
       end 
     end
 
