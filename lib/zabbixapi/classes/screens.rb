@@ -34,6 +34,8 @@ class ZabbixApi
     end
 
     def get_or_create_for_host(data)
+      log "[DEBUG] Call get_or_create_for_host with parameters: #{data.inspect}"
+
       screenitems = []
       screen_name = data[:screen_name]
       graphids    = data[:graphids]
@@ -41,39 +43,33 @@ class ZabbixApi
       halign      = data[:halign]  || 0
       rowspan     = data[:rowspan] || 0
       colspan     = data[:colspan] || 0
-      hsize       = data[:hsize]   || (graphids.size.to_i < 3) ? graphids.size.to_i : 3
-      vsize       = data[:vsize]   || (graphids.size/hsize).to_i == 0 ? 1 : (graphids.size/hsize).to_i
+      hsize       = data[:hsize]   || (graphids.size < 3 ? graphids.size : 3)
+      vsize       = data[:vsize]   || ((graphids.size / hsize) + (graphids.size % hsize))
       height      = data[:height]  || 100 # default 100
       width       = data[:width]   || (hsize.to_i < 3) ? 500 : 400  # default 500
 
       screenid    = get_id(:name => screen_name)
-
-      #if ((graphids.size/hsize) / 2) == 0
-      #  vsize = data[:vsize] || (graphids.size/hsize).to_i
-      #else
-      #  vsize = data[:vsize] || ((graphids.size/hsize)+1).to_i
-      #end
 
       unless screenid
         # Create screen
         graphids.each_with_index do |graphid, index|
           screenitems << {
             :resourcetype => 0,
-            :resourceid => graphid,
-            :x => (index % hsize).to_i,
-            :y => (index % graphids.size/hsize).to_i,
-            :valign => valign,
-            :halign => halign,
-            :rowspan => rowspan,
-            :colspan => colspan,
-            :height => height,
-            :width => width
+            :resourceid   => graphid,
+            :x            => (index % hsize).to_i,
+            :y            => (index % graphids.size/hsize).to_i,
+            :valign       => valign,
+            :halign       => halign,
+            :rowspan      => rowspan,
+            :colspan      => colspan,
+            :height       => height,
+            :width        => width
           }
         end
         screenid = create(
-          :name => screen_name,
-          :hsize => hsize,
-          :vsize => vsize,
+          :name        => screen_name,
+          :hsize       => hsize,
+          :vsize       => vsize,
           :screenitems => screenitems
         )
       end
