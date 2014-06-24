@@ -26,6 +26,8 @@ class ZabbixApi
     end
 
     def parse_keys(data)
+      log "[DEBUG] Call parse_keys with parameters: #{data.inspect}"
+
       case data
         when Hash
           data.empty? ? nil : data['interfaceids'][0].to_i
@@ -37,27 +39,6 @@ class ZabbixApi
           nil
       end
     end
-
-    #def unlink_templates(data)
-    #  result = @client.api_request(
-    #    :method => "host.massRemove",
-    #    :params => {
-    #      :hostids => data[:hosts_id],
-    #      :templates => data[:templates_id]
-    #    }
-    #  )
-    #  result.empty? ? false : true
-    #end
-
-    def create_or_update(data)
-      hostid = get_id(:host => data[:host])
-      hostid ? update(data.merge(:hostid => hostid)) : create(data)
-    end
-
-    #def delete(data)
-    #  result = @client.api_request(:method => "hostinterface.delete", :params => [data])
-    #  result.empty? ? nil : result['interfaceids'][0].to_i
-    #end
 
     def get_full_data(data)
       log "[DEBUG] Call get_full_data with parameters: #{data.inspect}"
@@ -74,12 +55,34 @@ class ZabbixApi
     def exists(data)
       log "[DEBUG] Call exits with parameters: #{data.inspect}"
 
-      @client.api_request(
-        :method => "#{method_name}.exists",
+      filter = Hash.new
+
+      if(defined? data['ip'])
+        if(!data[:ip].empty?)
+          filter[:ip] = data[:ip]
+        end
+      end
+
+      if(defined? data['port'])
+        if(!data[:port].to_s.empty?)
+          filter[:port] = data[:port]
+        end
+      end
+
+      result = @client.api_request(
+        :method => "hostinterface.get",
         :params => {
-           indentify.to_sym => data[indentify.to_sym]
+          :hostids => data[:hostids],
+          :filter => filter,
+          :output => "extend"
         }
       )
+      
+      if(result.count > 0)
+        true
+      else
+        false
+      end
     end
 
     def get_on_port(data)
@@ -99,7 +102,7 @@ class ZabbixApi
     end
 
     def massadd(hosts,data)
-      log "[DEBUG] Call massadd with parameters: #{hosts} --- #{data.inspect}"
+      log "[DEBUG] Call massadd with parameters: #{hosts.inspect} - #{data.inspect}"
 
       @client.api_request(
         :method => "#{method_name}.massadd",
@@ -111,7 +114,7 @@ class ZabbixApi
     end
 
     def massremove(hosts,data)
-      log "[DEBUG] Call massremove with parameters: #{hosts} --- #{data.inspect}"
+      log "[DEBUG] Call massremove with parameters: #{hosts.inspect} - #{data.inspect}"
 
       @client.api_request(
         :method => "#{method_name}.massremove",
