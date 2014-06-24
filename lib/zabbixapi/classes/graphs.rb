@@ -14,7 +14,7 @@ class ZabbixApi
     end
 
     def get_full_data(data)
-      log "[DEBUG] Call get_full_data with parametrs: #{data.inspect}"
+      log "[DEBUG] Call get_full_data with parameters: #{data.inspect}"
 
       params = nil
       if(defined? data['templateids'])
@@ -37,7 +37,7 @@ class ZabbixApi
     end
 
     def get_by_host(data)
-      log "[DEBUG] Call get_graphs_by_host with parametrs: #{data.inspect}"
+      log "[DEBUG] Call get_graphs_by_host with parameters: #{data.inspect}"
 
       @client.api_request(
         :method => "graph.get",
@@ -49,11 +49,11 @@ class ZabbixApi
     end
 
     def get_ids_by_host(data)
-      log "[DEBUG] Call get_ids_by_host with parametrs: #{data.inspect}"
+      log "[DEBUG] Call get_ids_by_host with parameters: #{data.inspect}"
 
       ids = []
       graphs = Hash.new
-      result = @client.api_request(:method => "graph.get", :params => {:filter => {:host => data[:host]}, :output => "extend"})
+      result = get_by_host(:hostids => data[:hostids])
       result.each do |graph|
         num  = graph['graphid']
         name = graph['name']
