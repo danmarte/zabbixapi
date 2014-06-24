@@ -27,9 +27,19 @@ class ZabbixApi
             indentify.to_sym => data[indentify.to_sym]
           },
           :selectHosts => [:hostid,:name]
-          #:output => [:hostid]
         }
       )
+    end
+
+    def get_hosts_ids(data)
+      log "[DEBUG] Call get_hosts_ids with parametrs: #{data.inspect}"
+      
+      ids = Array.new
+      results = get_hosts(data)
+      results[0]['hosts'].each { |host|
+        ids.push(host['hostid']) 
+      }
+      ids
     end
 
   end
