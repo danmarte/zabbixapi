@@ -103,7 +103,7 @@ class ZabbixApi
 
     def create_or_update(data)
       log "[DEBUG] Call create_or_update with parameters: #{data.inspect}"
-      graphid = get_id(:name => data[:name], :templateid => data[:templateid])
+      graphid = get_id(:name => data[:name], :templateids => data[:templateids])
       graphid ? _update(data.merge(:graphid => graphid)) : create(data)
     end
 
