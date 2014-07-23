@@ -28,6 +28,7 @@ class ZabbixApi
     # this is a different version from the one declared
     # in basic_logic
     def hash_equals?(a, b)
+      log "[DEBUG] Call has_equals? with parameters:\n#{a.inspect}\n#{b.inspect}"
       t = get_pairs(a, b)
       if (b.size > t.size)
         difference = b.to_a - t.to_a
