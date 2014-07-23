@@ -50,6 +50,30 @@ class ZabbixApi
       }
     end
 
+    # Check which keys from n exists in d,
+    # then return the matches in a hash.
+    def get_pairs(d, n)
+      matches = {}
+      n.keys.each {|key|
+        if d.has_key?(key)
+          matches["#{key}"] = d["#{key}"]
+        end
+      }
+      matches
+    end
+
+    # this is a different version from the one declared
+    # in basic_logic
+    def hash_equals?(a, b)
+      t = get_pairs(a, b)
+      if (b.size > t.size)
+        difference = b.to_a - t.to_a
+      else
+        difference = t.to_a - b.to_a
+      end
+      difference.size == 0
+    end
+
     def delete(data)
       log "[DEBUG] Call delete with parametrs: #{data.inspect}"
 
@@ -58,13 +82,32 @@ class ZabbixApi
       result['itemids'].keys[0].to_i
     end
 
+    def create_or_update(data)
+      log "[DEBUG] Call create_or_update with parameters: #{data.inspect}"
+
+      id = get_id(data)
+      #result = @client.api_request(:method => "item.get", :params => { :itemids => data[key.to_sym] })
+      #id = nil
+      #result.each { |item| id = item[key.to_sym].to_i if item[key.to_sym] == data[key.to_sym] }  
+
+      id ? update(data.merge(key.to_sym => id.to_s)) : create(data)
+    end
+
     def get_full_data(data)
       log "[DEBUG] Call get_full_data with parametrs: #{data.inspect}"
 
-      if(defined? data['templateids'])
+      #if(defined? data['templateids'] && !data['templateids'].nil?)
+      if(!data['templateids'.to_sym].nil?)
         params = {
           :filter => { indentify.to_sym => data[indentify.to_sym] },
-          :templateids => data['templateids'.to_sym],
+          :templateids => data[:templateids],
+          :output => "extend"
+        }
+      #elsif(defined? data['hostids'] && !data['hostids'].nil?)
+      elsif(!data['hostids'.to_sym].nil?)
+        params = {
+          :filter => { indentify.to_sym => data[indentify.to_sym] },
+          :hostids => data[:hostids],
           :output => "extend"
         }
       else
