@@ -38,26 +38,61 @@ class ZabbixApi
 
       screenitems = []
       screen_name = data[:screen_name]
-      graphids    = data[:graphids]
-      valign      = data[:valign]  || 0
-      halign      = data[:halign]  || 0
-      rowspan     = data[:rowspan] || 0
-      colspan     = data[:colspan] || 0
-      hsize       = data[:hsize]   || (graphids.size < 3 ? graphids.size : 3)
-      vsize       = data[:vsize]   || ((graphids.size / hsize) + (graphids.size % hsize))
-      height      = data[:height]  || 100 # default 100
-      width       = data[:width]   || (hsize.to_i < 3) ? 500 : 400  # default 500
-
-      screenid    = get_id(:name => screen_name)
-
+      
+      # Check if the screen already exists
+      screenid   = get_id(:name => screen_name)
+      
       unless screenid
-        # Create screen
-        graphids.each_with_index do |graphid, index|
+        # if the screen didn't exist then we have to create it
+        valign  = data[:valign]  || 0
+        halign  = data[:halign]  || 0
+        rowspan = data[:rowspan] || 0
+        colspan = data[:colspan] || 0
+
+        graphs_and_screens = Array.new
+      
+        # Clasify graphids by addind a type
+        if(!data[:graphids].nil?)
+          data[:graphids].compact.each { |graph|
+            graphs_and_screens.push({'type' => 0, 'id' => graph})
+          }
+        end
+        
+        # Clasify screenids by addind a type
+        if(!data[:screenids].nil?)
+          data[:screenids].compact.each { |screen|
+            graphs_and_screens.push({'type' => 8, 'id' => screen})
+          }
+        end        
+        
+        # Set the horizontal and vertical size of the screenids
+        hsize = data[:hsize]   || (graphs_and_screens.size < 3 ? graphs_and_screens.size : 3)
+        vsize = data[:vsize]   || ((graphs_and_screens.size / hsize) + (graphs_and_screens.size % hsize))
+        
+        graphs_and_screens.each_with_index do |graph, index|
+          
+          if(graph['type']==0)
+            width  = data[:width]   || ((hsize.to_i < 3) ? 600 : 400)
+            height = data[:height]  || 100
+          else
+            width   = nil
+            height  = nil
+          end
+          
+          # Let's align the graphs in a smarter way.
+          # Center => 0
+          # Left   => 1
+          # Right  => 2
+          if (data[:halign].nil? && graphs_and_screens.size > 1)
+            halign = ((index % hsize).to_i == 0 ? 2 : 1)
+          end
+
+          # Add each element to the screen array
           screenitems << {
-            :resourcetype => 0,
-            :resourceid   => graphid,
+            :resourcetype => graph['type'],
+            :resourceid   => graph['id'],
             :x            => (index % hsize).to_i,
-            :y            => (index % graphids.size/hsize).to_i,
+            :y            => (index % graphs_and_screens.size/hsize).to_i,
             :valign       => valign,
             :halign       => halign,
             :rowspan      => rowspan,
@@ -66,15 +101,18 @@ class ZabbixApi
             :width        => width
           }
         end
+        
+        # Create the screen
         screenid = create(
           :name        => screen_name,
           :hsize       => hsize,
           :vsize       => vsize,
           :screenitems => screenitems
-        )
+        ) 
       end
       screenid
     end
+
 
   end
 end
