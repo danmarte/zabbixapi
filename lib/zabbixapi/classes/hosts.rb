@@ -35,6 +35,25 @@ class ZabbixApi
       result.empty? ? false : true
     end
 
+
+    def get_full_data(data)
+      log "[DEBUG] Call get_full_data with parameters: #{data.inspect}"
+
+      params = {
+        :filter => { indentify.to_sym => data[indentify.to_sym] },
+        :output => "extend"
+      }
+      
+      if(!data['groupids'.to_sym].nil?)
+        params[:groupids] = data[:groupids]
+      end
+
+      @client.api_request(
+        :method => "#{method_name}.get",
+        :params => params
+      )
+    end
+
     def create_or_update(data)
       hostid = get_id(:host => data[:host])
       hostid ? update(data.merge(:hostid => hostid)) : create(data)
