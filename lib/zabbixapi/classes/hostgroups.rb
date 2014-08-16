@@ -42,5 +42,28 @@ class ZabbixApi
       ids
     end
 
+    def massupdate(data)
+      log "[DEBUG] Call massupdate with parametrs: #{data.inspect}"
+
+      groups = Array.new
+      hosts = Array.new
+
+      data[:groups].each { |gid|
+        groups.push({"groupid" => gid})
+      }
+
+      data[:hosts].each { |hid|
+        hosts.push({"hostid" => hid})
+      }
+
+      @client.api_request(
+        :method => "#{method_name}.massupdate",
+        :params => {
+          :groups => groups,
+          :hosts  => hosts
+        }
+      )
+    end
+
   end
 end
