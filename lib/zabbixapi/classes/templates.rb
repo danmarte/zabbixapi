@@ -60,7 +60,7 @@ class ZabbixApi
     #   - True or False
     def mass_update(data)
       result = @client.api_request(
-        :method => "template.massAdd", 
+        :method => "template.massupdate", 
         :params => {
           :hosts => data[:hosts_id].map { |t| {:hostid => t} },
           :templates => data[:templates_id].map { |t| {:templateid => t} }
@@ -77,10 +77,11 @@ class ZabbixApi
     #   - True or False
     def mass_add(data)
       result = @client.api_request(
-        :method => "template.massAdd", 
+        :method => "template.massadd", 
         :params => {
-          :hosts => data[:hosts_id].map { |t| {:hostid => t} },
-          :templates => data[:templates_id].map { |t| {:templateid => t} }
+          :hosts => data[:hosts_id],
+          :templates => data[:templates_id],
+          :force => 1
         }
       )
       result.empty? ? false : true
@@ -94,7 +95,7 @@ class ZabbixApi
     #   - True or False
     def mass_remove(data)
       result = @client.api_request(
-        :method => "template.massRemove",
+        :method => "template.massremove",
         :params => {
           :hostids => data[:hosts_id],
           :templateids => data[:templates_id],
