@@ -52,6 +52,19 @@ class ZabbixApi
       templateid
     end   
 
+    def get_hostids(data)
+      results = Array.new
+      @client.api_request(:method => "template.get", :params => {:templateids => data, :output => "extend", :selectHosts => [:hostid,:name]})[0]['hosts'].each { |host|
+        results.push(host['hostid'].to_i)
+      }
+      results
+    end
+
+    def get_hosts(data)
+      results = @client.api_request(:method => "template.get", :params => {:templateids => data, :output => "extend", :selectHosts => [:hostid,:name]})[0]['hosts']
+      results.empty? ? nil : results
+    end
+
     # Analog Zabbix api call massUpdate
     # 
     # * *Args*    :
