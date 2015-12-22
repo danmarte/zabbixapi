@@ -17,7 +17,7 @@ class ZabbixApi
 
     def auth
       api_request(
-        :method => 'user.authenticate',
+        :method => 'user.login',
         :params => {
           :user      => @options[:user],
           :password  => @options[:password],
