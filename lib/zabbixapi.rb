@@ -42,9 +42,9 @@ class ZabbixApi
 
   def initialize(options = {})
     @client = Client.new(options)
-    unless @client.api_version == "1.4" || @client.api_version =~ /2\.0\.\d+/
-      raise "Zabbix API version: #{@client.api_version} is not support by this version of zabbixapi"
-    end
+    #unless @client.api_version == "1.4" || @client.api_version =~ /2\.0\.\d+/
+    #  raise "Zabbix API version: #{@client.api_version} is not support by this version of zabbixapi"
+    #end
   end
 
   def server
